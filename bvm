@@ -887,9 +887,9 @@ elif [ ! -z "$vmdir" ] && df -T "$vmdir" 2>/dev/null | grep -q 'fat' ;then
 fi
 
 #avoid trying to run sudo not in a terminal, in case a password is necessary
-if [ "$mode" != gui ];then
-  install_dependencies || exit 1
-fi
+#if [ "$mode" != gui ];then
+#  install_dependencies || exit 1
+#fi
 
 echo "BVM mode $mode"
 
