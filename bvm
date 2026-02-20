@@ -1315,6 +1315,7 @@ To get a fresh VM up and running, use a sequence like this:
       taskset -c "$(echo "$use_cores" | tr '\n' ',' | sed 's/,$//g')" qemu-system-aarch64 "${full_qemu_flags[@]}" || qemu_exitcode_analyzer
     fi
     status "QEMU closed."
+    read -p "Press Enter to continue with post-installation setup... "
     
     #check disk.qcow2 and remove microsoft defender if debloat enabled
     mountpoint="/media/$USER/bvm-mount$rdp_port"
