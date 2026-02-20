@@ -861,7 +861,7 @@ debloat: $debloat
 fullscreen: $fullscreen"
 
 #check for updates
-update_check
+#update_check
 copy_icons
 
 #check system for compatibility
