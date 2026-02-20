@@ -1328,7 +1328,7 @@ To get a fresh VM up and running, use a sequence like this:
       error "It appears that Windows installation was not completed in disk.qcow2. C:/Windows/Temp/firstlogin_log.txt does not exist."
     fi
     
-    remove_microsoft_defender "$mountpoint" || exit 1
+    #remove_microsoft_defender "$mountpoint" || exit 1
     #if debloat is disabled, all this does is mount the disk.qcow2 to make sure it seems complete
     remove_UCPD_from_mountpoint "$mountpoint"
     
