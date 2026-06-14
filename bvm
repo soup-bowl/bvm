@@ -286,6 +286,9 @@ download_windows_11arm64_22631() { #downloads older W11 version for ARMv8.0 CPUs
   if [ -f "$SOURCE_FILE" ] && [ "$SHA1" == "$(echo "  - Checking validity of already downloaded image.esd" 1>&2 ; sha1sum "$SOURCE_FILE" | awk '{print $1}')" ];then
     echo "  - Not downloading $SOURCE_FILE - file exists"
   else
+    if [ -z "$URL" ] || [ -z "$SIZE" ] || [ -z "$SHA1" ];then
+      error "One of URL, SIZE, or SHA1 variables is empty!\nURL: $URL\nSIZE: $SIZE\nSHA1: $SHA1\nHere's the full catalog output: '$catalog'"
+    fi
     echo "  - Downloading Windows ESD image"
     wget -nv --show-progress "$URL" -O "$SOURCE_FILE" || error "Failed to download ESD image"
     echo "  - Verifying download... "
