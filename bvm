@@ -277,25 +277,37 @@ download_windows_11arm64_22631() { #downloads older W11 version for ARMv8.0 CPUs
   rm -rf "$vmdir/esdextract" || error "Failed to remove esdextract folder"
   mkdir "$vmdir/esdextract" || error "Directory creation failed"
   
-  #Get download link, size, and SHA1 hash for ESD
+  #Get download link, size, and SHA1/SHA256 hash for ESD
   local URL="$(echo "$catalog" | grep '<FilePath>' -m 1 | sed 's/<FilePath>//g' | sed 's/<\/FilePath>//g')"
   local SIZE="$(echo "$catalog" | grep '<Size>' -m 1 | sed 's/<Size>//g' | sed 's/<\/Size>//g')"
   local SHA1="$(echo "$catalog" | grep '<Sha1>' -m 1 | sed 's/<Sha1>//g' | sed 's/<\/Sha1>//g')"
+  local SHA256="$(echo "$catalog" | grep '<Sha256>' -m 1 | sed 's/<Sha256>//g' | sed 's/<\/Sha256>//g')"
   local SOURCE_FILE="$vmdir/image.esd"
   
-  if [ -f "$SOURCE_FILE" ] && [ "$SHA1" == "$(echo "  - Checking validity of already downloaded image.esd" 1>&2 ; sha1sum "$SOURCE_FILE" | awk '{print $1}')" ];then
+  if [ -z "$URL" ] || [ -z "$SIZE" ] || ([ -z "$SHA1" ] && [ -z "$SHA256" ]);then
+    error "One of URL, SIZE, or SHA1/SHA256 variables is empty!\nURL: $URL\nSIZE: $SIZE\nSHA1: $SHA1\nSHA256: $SHA256\nHere's the full catalog output: '$catalog'"
+  fi
+  
+  if [ -f "$SOURCE_FILE" ] && [ ! -z "$SHA1" ] && [ "$SHA1" == "$(echo "  - Checking validity of already downloaded image.esd" 1>&2 ; sha1sum "$SOURCE_FILE" | awk '{print $1}')" ];then
+    echo "  - Not downloading $SOURCE_FILE - file exists"
+  elif [ -f "$SOURCE_FILE" ] && [ ! -z "$SHA256" ] && [ "$SHA256" == "$(echo "  - Checking validity of already downloaded image.esd" 1>&2 ; sha256sum "$SOURCE_FILE" | awk '{print $1}')" ];then
     echo "  - Not downloading $SOURCE_FILE - file exists"
   else
-    if [ -z "$URL" ] || [ -z "$SIZE" ] || [ -z "$SHA1" ];then
-      error "One of URL, SIZE, or SHA1 variables is empty!\nURL: $URL\nSIZE: $SIZE\nSHA1: $SHA1\nHere's the full catalog output: '$catalog'"
-    fi
     echo "  - Downloading Windows ESD image"
     wget -nv --show-progress "$URL" -O "$SOURCE_FILE" || error "Failed to download ESD image"
     echo "  - Verifying download... "
-    local LOCAL_SHA1="$(sha1sum "$SOURCE_FILE" | awk '{print $1}')"
-    if [ "$SHA1" != "$LOCAL_SHA1" ];then
-      rm -f "$SOURCE_FILE"
-      error "\nSuccessfully downloaded ESD image $SOURCE_FILE, but it appears to be corrupted. Please run this script again.\n(Expected SHA1 hash is $SHA1, but downloaded file has SHA1 hash $LOCAL_SHA1"
+    if [ ! -z "$SHA1" ];then
+      local LOCAL_SHA1="$(sha1sum "$SOURCE_FILE" | awk '{print $1}')"
+      if [ "$SHA1" != "$LOCAL_SHA1" ];then
+        rm -f "$SOURCE_FILE"
+        error "\nSuccessfully downloaded ESD image $SOURCE_FILE, but it appears to be corrupted. Please run this script again.\n(Expected SHA1 hash is $SHA1, but downloaded file has SHA1 hash $LOCAL_SHA1"
+      fi
+    elif [ ! -z "$SHA256" ];then
+      local LOCAL_SHA256="$(sha256sum "$SOURCE_FILE" | awk '{print $1}')"
+      if [ "$SHA256" != "$LOCAL_SHA256" ];then
+        rm -f "$SOURCE_FILE"
+        error "\nSuccessfully downloaded ESD image $SOURCE_FILE, but it appears to be corrupted. Please run this script again.\n(Expected SHA256 hash is $SHA256, but downloaded file has SHA256 hash $LOCAL_SHA256"
+      fi
     fi
     echo "Done"
   fi
