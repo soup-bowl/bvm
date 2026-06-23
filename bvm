@@ -829,9 +829,6 @@ usb_passthrough_frontend() { #help the user add USB devices to be forwarded to t
 }
 export -f usb_passthrough_frontend #make available to clickhandler
 
-#full path to the bvm folder storing this script
-DIRECTORY="$(readlink -f "$(dirname "$(readlink -f "$0")")")"
-
 #Ensure /usr/sbin is in PATH to fix https://github.com/Botspot/bvm/issues/180
 if [[ ":$PATH:" != *":/usr/sbin:"* ]]; then
   export PATH+=":/usr/sbin"
@@ -847,7 +844,11 @@ if [ -z "$mode" ];then
   mode=help #display help message then exit
 else
   #check if it is okay for $vmdir to not exist
-  case "$mode" in 
+  case "$mode" in
+    source)
+      echo "BVM functions sourced!"
+      return 0
+      ;;
     help|list-languages|gui)
       true #no vmdir needed
       ;;
@@ -869,6 +870,13 @@ else
       fi
       ;;
   esac
+fi
+
+#full path to the bvm folder storing this script
+DIRECTORY="$(readlink -f "$(dirname "$(readlink -f "$0")")")"
+
+if [ -z "$DIRECTORY" ] || [ "$DIRECTORY" == "$HOME" ] || [ "$DIRECTORY" == / ] || [ ! -f "$DIRECTORY/bvm" ];then
+  error "DIRECTORY variable seems invalid. (Got '$DIRECTORY')\nPlease run this script normally in its original folder. If sourcing functions, be sure to set DIRECTORY yourself first."
 fi
 
 IFS=$'\n'
