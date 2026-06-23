@@ -712,7 +712,7 @@ StartupNotify=true" > ~/.local/share/applications/bvm.desktop
   #make terminal command (may only work on future shell logins)
   mkdir -p ~/.local/bin
   [ ! -e ~/.local/bin/bvm ] && status "From now on you should be able to run BVM simply with 'bvm'. The command might not be detected by this terminal, but will work on future terminals."
-  ln -sf "${DIRECTORY}/bvm" ~/.local/bin/bvm
+  ln -sfn "${DIRECTORY}/bvm" ~/.local/bin/bvm
 }
 
 qemu_newer_than() { #check if QEMU is newer than specified version, return 0 if yes, return 1 if no
