@@ -834,6 +834,11 @@ if [[ ":$PATH:" != *":/usr/sbin:"* ]]; then
   export PATH+=":/usr/sbin"
 fi
 
+#Ensure XDG_RUNTIME_DIR is set to fix pipewire issue on Armbian (reported by discord user)
+if [ -z "$XDG_RUNTIME_DIR" ];then
+  export XDG_RUNTIME_DIR=/run/user/$(id -u)
+fi
+
 #Track the original arguments given to the script in order to restart in an update
 original_flags=("$@")
 
